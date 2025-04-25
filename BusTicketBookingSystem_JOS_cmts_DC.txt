@@ -1,0 +1,207 @@
+package josbert_new_;
+import javax.swing.*;
+import java.awt.*; // Importing AWT classes for GUI components
+import java.awt.event.ActionEvent; // For handling button actions
+import java.awt.event.ActionListener; // The interface for handling action events
+import java.util.Date; // For handling dates
+import java.util.HashMap; // For storing seat availability and route costs using key-value pairs
+import java.util.Map; // Importing the Map interface
+public class BusTicketBookingSystem_JOS_cmts_DC extends JFrame {
+    private JComboBox<String> routeComboBox; // Dropdown for selecting the bus route
+    private JTextField passengerNameField; // Text field for entering the passenger's name
+    private JTextField phoneNumberField; // Text field for entering the passenger's phone number
+    private JTextField ticketCountField; // Text field for entering the number of tickets to book
+    private JSpinner dateSpinner; // Spinner for selecting the date of travel
+    private JSpinner timeSpinner; // Spinner for selecting the time of travel
+    private JTextArea bookingSummary; // Text area for displaying booking details
+    private Map<String, Integer> seatAvailability; // Map to track available seats per route
+    private Map<String, Integer> routeCosts; // Map to store costs per route
+
+    // Constructor to set up the GUI components
+    public BusTicketBookingSystem_JOS_cmts_DC() {
+        // Set the title and dimensions of the window
+        setTitle("Online Bus Ticket Booking System Developed by Josbert");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE); // Close the application on exit
+
+        // Create a panel to hold the input components
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(8, 2, 10, 10)); // Grid layout for organized arrangement
+
+        // Create and add the route label and dropdown menu to the panel
+        JLabel routeLabel = new JLabel("Route:");
+        String[] routes = {
+            "Kigali-Musanze", "Kigali-Huye", "Kigali-Byumba", "Kigali-Nyamata",
+            "Musanze-Rubavu", "Musanze-Kigali", "Huye-Kigali", "Byumba-Kigali",
+            "Nyamata-Kigali", "Rubavu-Musanze"
+        }; // Array of available bus routes
+        routeComboBox = new JComboBox<>(routes); // Dropdown for selecting routes
+        panel.add(routeLabel); // Adding label to panel
+        panel.add(routeComboBox); // Adding dropdown to panel
+
+        // Create and add the passenger name input field
+        JLabel nameLabel = new JLabel("Passenger Name:");
+        passengerNameField = new JTextField(); // Text field for passenger name
+        panel.add(nameLabel); // Adding label to panel
+        panel.add(passengerNameField); // Adding text field to panel
+
+        // Create and add the phone number input field
+        JLabel phoneLabel = new JLabel("Phone Number:");
+        phoneNumberField = new JTextField(); // Text field for phone number
+        panel.add(phoneLabel); // Adding label to panel
+        panel.add(phoneNumberField); // Adding text field to panel
+
+        // Create and add the date spinner for travel date selection
+        JLabel dateLabel = new JLabel("Date of Travel:");
+        dateSpinner = new JSpinner(new SpinnerDateModel()); // Spinner for travel date selection
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy"); // Formatting date
+        dateSpinner.setEditor(dateEditor); // Setting the date editor
+        panel.add(dateLabel); // Adding label to panel
+        panel.add(dateSpinner); // Adding spinner to panel
+
+        // Create and add the time spinner for travel time selection
+        JLabel timeLabel = new JLabel("Time of Travel:");
+        SpinnerDateModel timeModel = new SpinnerDateModel();
+        timeModel.setCalendarField(java.util.Calendar.HOUR_OF_DAY); // Set field for hour selection
+        timeSpinner = new JSpinner(timeModel); // Spinner for travel time
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm"); // Formatting time
+        timeSpinner.setEditor(timeEditor); // Setting the time editor
+        panel.add(timeLabel); // Adding label to panel
+        panel.add(timeSpinner); // Adding spinner to panel
+
+        // Create and add the ticket count input field
+        JLabel ticketCountLabel = new JLabel("Number of Tickets:");
+        ticketCountField = new JTextField(); // Text field for number of tickets
+        panel.add(ticketCountLabel); // Adding label to panel
+        panel.add(ticketCountField); // Adding text field to panel
+
+        // Create and add the book button
+        JButton bookButton = new JButton("Book Tickets");
+        // Action listener for booking tickets when button is clicked
+        bookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bookTickets(); // Invoke ticket booking method
+            }
+        });
+        panel.add(bookButton); // Adding button to panel
+
+        // Create and add the clear button
+        JButton clearButton = new JButton("Clear");
+        // Action listener for clearing the form when button is clicked
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearForm(); // Invoke method to clear form
+            }
+        });
+        panel.add(clearButton); // Adding button to panel
+
+        // Create a text area to show the booking summary and wrap it in a scroll pane
+        bookingSummary = new JTextArea();
+        bookingSummary.setEditable(false); // Make the text area non-editable
+        JScrollPane scrollPane = new JScrollPane(bookingSummary); // Enable scrolling
+
+        // Adding components to the content pane
+        getContentPane().add(panel, BorderLayout.CENTER); // Adding panel in the center
+        getContentPane().add(scrollPane, BorderLayout.SOUTH); // Adding scroll pane at the bottom
+
+        // Initialize seat availability and route costs
+        initializeSeatAvailability();
+        initializeRouteCosts();
+    }
+
+    // Method to initialize seat availability for each route
+    private void initializeSeatAvailability() {
+        seatAvailability = new HashMap<>(); // Create a new HashMap to track seats
+        for (String route : routeComboBox.getItemAt(routeComboBox.getItemCount() - 1).split(" ")) {
+            seatAvailability.put(route, 40); // Adding 40 seats available for each route initially
+        }
+    }
+
+    // Method to initialize costs for each bus route
+    private void initializeRouteCosts() {
+        routeCosts = new HashMap<>(); // Create a new HashMap to store route costs
+        // Adding entries for different routes and their corresponding costs
+        routeCosts.put("Kigali-Musanze", 1500);
+        routeCosts.put("Kigali-Huye", 2000);
+        routeCosts.put("Kigali-Byumba", 1800);
+        routeCosts.put("Kigali-Nyamata", 1700);
+        routeCosts.put("Musanze-Rubavu", 1600);
+        routeCosts.put("Musanze-Kigali", 1500);
+        routeCosts.put("Huye-Kigali", 2000);
+        routeCosts.put("Byumba-Kigali", 1800);
+        routeCosts.put("Nyamata-Kigali", 1700);
+        routeCosts.put("Rubavu-Musanze", 1600);
+    }
+
+    // Method to handle the booking of tickets
+    private void bookTickets() {
+        // Retrieving input values from the GUI
+        String route = (String) routeComboBox.getSelectedItem(); // Selected route
+        String passengerName = passengerNameField.getText(); // Passenger's name
+        String phoneNumber = phoneNumberField.getText(); // Passenger's phone number
+        Date dateOfTravel = (Date) dateSpinner.getValue(); // Date of travel
+        Date timeOfTravel = (Date) timeSpinner.getValue(); // Time of travel
+        String ticketCountStr = ticketCountField.getText(); // Tickets count as String
+
+        // Validate inputs for completeness
+        if (route == null || passengerName.isEmpty() || phoneNumber.isEmpty() || ticketCountStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit method if inputs are invalid
+        }
+
+        int ticketCount; // Variable to hold number of tickets
+        try {
+            ticketCount = Integer.parseInt(ticketCountStr); // Parse ticket count
+            if (ticketCount <= 0) {
+                JOptionPane.showMessageDialog(this, "Number of tickets must be greater than zero", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit if the ticket count is not valid
+            }
+        } catch (NumberFormatException e) {
+            // Handle number format exception if parsing fails
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for tickets", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit if parsing fails
+        }
+
+        int availableSeats = seatAvailability.getOrDefault(route, 30); // Get available seats for selected route
+        if (ticketCount > availableSeats) {
+            // If not enough seats available, show an error message
+            JOptionPane.showMessageDialog(this, "Not enough seats available for this route at this time", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit if tickets cannot be booked
+        }
+
+        // Update seat availability by subtracting the booked tickets
+        seatAvailability.put(route, availableSeats - ticketCount);
+
+        // Calculate total cost for the number of tickets booked
+        int costPerTicket = routeCosts.getOrDefault(route, 1000); // Get cost per ticket or default to 1000
+        int totalAmount = ticketCount * costPerTicket; // Total cost calculation
+        String paymentCode = "*182*8*1*596633*" + totalAmount + "rwf#"; // Generate a mock payment code
+        // Compile booking details into a formatted string
+        String bookingDetails = String.format("Booking Details:\nPassenger Name: %s\nPhone Number: %s\nRoute: %s\nDate of Travel: %s\nTime of Travel: %s\nNumber of Tickets: %d\nTotal Amount: %d RWF\n\nPayment Code: %s\n\n",
+                passengerName, phoneNumber, route, dateOfTravel.toString(), timeOfTravel.toString(), ticketCount, totalAmount, paymentCode);
+        bookingSummary.append(bookingDetails); // Append booking details to the booking summary text area
+    }
+
+    // Method to clear all inputs in the form
+    private void clearForm() {
+        routeComboBox.setSelectedIndex(0); // Reset route selection
+        passengerNameField.setText(""); // Clear passenger name field
+        phoneNumberField.setText(""); // Clear phone number field
+        dateSpinner.setValue(new Date()); // Reset date to current date
+        timeSpinner.setValue(new Date()); // Reset time to the current time
+        ticketCountField.setText(""); // Clear ticket count field
+    }
+
+    // Main method to run the application
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new BusTicketBookingSystem_JOS_cmts_DC().setVisible(true); // Create and display the GUI
+            }
+        });
+    }
+
+}
